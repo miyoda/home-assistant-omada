@@ -1,7 +1,6 @@
 # Home Assistant Omada Add-On
 This add-on brings the Omada Controller directly into Home Assistant running on a Raspberry Pi.
 
-Currently, this Add-On  only works for aarch64-based Home Assistant installations. Please open an issue, if you want support for another platform. Pull-Requests for other architectures are also welcome. 
 
 
 # Contribution 
