@@ -63,7 +63,7 @@ case "${OMADA_VER}" in
 esac
 
 # make sure tha the install directory exists
-mkdir "/opt/tplink/EAPController"
+mkdir "/opt/tplink/EAPController" -vp
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
@@ -107,7 +107,7 @@ case "${OMADA_MAJOR_VER}" in
 esac
 
 # symlink to home assistant data dir
-ln -s /data "${OMADA_DIR}"
+ln -s "${OMADA_DIR}" /data 
 
 
 echo "**** Cleanup ****"
