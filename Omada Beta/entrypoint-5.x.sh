@@ -119,6 +119,9 @@ then
   set_port_property portal.https.port 8843 "${PORTAL_HTTPS_PORT}"
 fi
 
+# set permissions on /data directory for home assistant persistence
+chown -R 508:508 "/data"
+
 # make sure that the html directory exists
 if [ ! -d "/opt/tplink/EAPController/data/html" ] && [ -f "/opt/tplink/EAPController/data-html.tar.gz" ]
 then
