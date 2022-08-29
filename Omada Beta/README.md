@@ -1,6 +1,8 @@
 # Home Assistant Omada Add-On
 This add-on brings the Omada Controller directly into Home Assistant running on a Raspberry Pi.
 
+BETA resets after every restart
+
 
 
 # Contribution 
