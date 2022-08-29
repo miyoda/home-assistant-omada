@@ -29,21 +29,9 @@ PKGS=(
   net-tools
   tzdata
   wget
-  openjdk-17-jre-headless
 )
 
-# add specific package for mongodb
-case "${ARCH}" in
-  amd64|arm64|"")
-    PKGS+=( mongodb-server-core )
-    ;;
-  armv7l)
-    PKGS+=( mongodb )
-    ;;
-  *)
-    die "${ARCH}: unsupported ARCH"
-    ;;
-esac
+
 
 
 # output variables/selections
@@ -82,7 +70,7 @@ case "${OMADA_VER}" in
 esac
 
 # make sure tha the install directory exists
-mkdir "${OMADA_DIR}" -vp
+mkdir "/opt/tplink/EAPController" -vp
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
