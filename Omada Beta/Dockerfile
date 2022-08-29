@@ -12,10 +12,11 @@ ARG ARCH=arm64
 # install version (major.minor only); OMADA_URL set in install.sh
 ARG INSTALL_VER="5.5"
 
+RUN chmod +x install.sh
+RUN chmod +x log4j_patch.sh
+
 # install omada controller (instructions taken from install.sh) & patch log4j, if applicable
-RUN /install.sh &&\
-  /log4j_patch.sh &&\
-  rm /install.sh /log4j_patch.sh
+RUN /install.sh && log4j_patch.sh && rm /install.sh /log4j_patch.sh
 
 COPY entrypoint-5.x.sh /entrypoint.sh
 
