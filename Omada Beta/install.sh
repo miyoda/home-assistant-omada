@@ -30,6 +30,7 @@ PKGS=(
   tzdata
   wget
   mongodb-server-core
+  openjdk-17-jre-headless
 )
 
 
