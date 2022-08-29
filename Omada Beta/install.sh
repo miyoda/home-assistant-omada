@@ -34,15 +34,6 @@ PKGS=(
 )
 
 
-
-
-# output variables/selections
-echo "ARCH=${ARCH}"
-echo "OMADA_VER=${OMADA_VER}"
-echo "OMADA_TAR=${OMADA_TAR}"
-echo "OMADA_URL=${OMADA_URL}"
-echo "PKGS=( ${PKGS[*]} )"
-
 echo "**** Install Dependencies ****"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
@@ -72,7 +63,7 @@ case "${OMADA_VER}" in
 esac
 
 # make sure tha the install directory exists
-mkdir "/opt/tplink/EAPController" -vp
+mkdir "/opt/tplink/EAPController"
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
@@ -114,14 +105,6 @@ case "${OMADA_MAJOR_VER}" in
     mkdir "${OMADA_DIR}/logs" "${OMADA_DIR}/work"
     ;;
 esac
-
-# for v5.1 & above, create backup of data/html directory in case it is missing (to be extracted at runtime)
-if [ -d /opt/tplink/EAPController/data/html ]
-then
-  # create backup
-  cd /opt/tplink/EAPController/data
-  tar zcvf ../data-html.tar.gz html
-fi
 
 # symlink to home assistant data dir
 ln -s /data "${OMADA_DIR}"
