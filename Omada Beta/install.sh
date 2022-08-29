@@ -29,6 +29,7 @@ PKGS=(
   net-tools
   tzdata
   wget
+  mongodb-server-core
 )
 
 
