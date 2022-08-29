@@ -4,10 +4,15 @@ set -e
 
 OMADA_DIR="/opt/tplink/EAPController"
 ARCH="${ARCH:-}"
-OMADA_VER="${OMADA_VER:-}"
-OMADA_TAR="${OMADA_TAR:-}"
 OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
 OMADA_MAJOR_VER="$(echo "${OMADA_VER}" | awk -F '.' '{print $1}')"
+
+
+# extract required data from the OMADA_URL
+OMADA_TAR="$(echo "${OMADA_URL}" | awk -F '/' '{print $NF}')"
+OMADA_VER="$(echo "${OMADA_TAR}" | awk -F '_v' '{print $2}' | awk -F '_' '{print $1}')"
+OMADA_MAJOR_VER="${OMADA_VER%.*.*}"
+OMADA_MAJOR_MINOR_VER="${OMADA_VER%.*}"
 
 die() { echo -e "$@" 2>&1; exit 1; }
 
@@ -32,10 +37,12 @@ armv7l)
   ;;
 esac
 
+# output variables/selections
 echo "ARCH=${ARCH}"
 echo "OMADA_VER=${OMADA_VER}"
 echo "OMADA_TAR=${OMADA_TAR}"
 echo "OMADA_URL=${OMADA_URL}"
+echo "PKGS=( ${PKGS[*]} )"
 
 echo "**** Install Dependencies ****"
 export DEBIAN_FRONTEND=noninteractive
@@ -75,7 +82,7 @@ mkdir "${OMADA_DIR}/work"
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
   5)
-    NAMES=( bin properties keystore lib install.sh uninstall.sh )
+    NAMES=( bin properties lib install.sh uninstall.sh )
     ;;
   *)
     NAMES=( bin properties keystore lib webapps install.sh uninstall.sh )

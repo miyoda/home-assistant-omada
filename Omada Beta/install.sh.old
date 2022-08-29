@@ -9,6 +9,7 @@ OMADA_DIR="/opt/tplink/EAPController"
 ARCH="${ARCH:-}"
 INSTALL_VER="${INSTALL_VER:-}"
 OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
+OMADA_TAR="Omada_SDN_Controller_v${OMADA_VER}_linux_x64.tar.gz"
 
 
 # extract required data from the OMADA_URL
