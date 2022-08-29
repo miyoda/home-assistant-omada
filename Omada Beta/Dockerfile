@@ -16,10 +16,10 @@ RUN chmod +x install.sh
 RUN chmod +x log4j_patch.sh
 
 # install omada controller (instructions taken from install.sh) & patch log4j, if applicable
-RUN /install.sh
-RUN rm /install.sh /log4j_patch.sh
+RUN /install.sh && /log4j_patch.sh && rm /install.sh /log4j_patch.sh
 
 COPY entrypoint-5.x.sh /entrypoint.sh
+RUN chmod +x entrypoint.sh
 
 WORKDIR /opt/tplink/EAPController/lib
 EXPOSE 8088 8043 8843 29810/udp 29811 29812 29813 29814

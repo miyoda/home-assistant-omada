@@ -109,6 +109,5 @@ esac
 # symlink to home assistant data dir
 ln -s "${OMADA_DIR}" /data 
 
-
 echo "**** Cleanup ****"
 rm -rf /tmp/* /var/lib/apt/lists/*
