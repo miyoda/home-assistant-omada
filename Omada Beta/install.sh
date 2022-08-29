@@ -5,17 +5,45 @@ set -e
 # omada controller dependency and package installer script for versions 4.x and 5.x
 
 # set default variables
-OMADA_DIR="/opt/tplink/EAPController"
+OMADA_DIR="/data/tplink/EAPController"
 ARCH="${ARCH:-}"
 INSTALL_VER="${INSTALL_VER:-}"
 
-
-# symlink to home assistant data dir
-ln -s "${OMADA_DIR}" /data
-
 # set URL based on the major.minor version requested to be installed; should be major.minor (e.g. - 4.1)
-OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
-
+case "${INSTALL_VER}" in
+  4.1)
+    OMADA_URL="https://static.tp-link.com/2020/202007/20200714/Omada_SDN_Controller_v4.1.5_linux_x64.tar.gz"
+    ;;
+  4.2)
+    OMADA_URL="https://static.tp-link.com/2021/202102/20210209/Omada_SDN_Controller_v4.2.11_linux_x64.tar.gz"
+    ;;
+  4.3)
+    OMADA_URL="https://static.tp-link.com/2021/202105/20210507/Omada_SDN_Controller_v4.3.5_linux_x64.tar.gz"
+    ;;
+  4.4)
+    OMADA_URL="https://static.tp-link.com/upload/software/2021/202112/20211217/Omada_SDN_Controller_v4.4.8_linux_x64.tar.gz"
+    ;;
+  5.0)
+    OMADA_URL="https://static.tp-link.com/upload/software/2022/202201/20220120/Omada_SDN_Controller_v5.0.30_linux_x64.tar.gz"
+    ;;
+  5.1)
+    OMADA_URL="https://static.tp-link.com/upload/software/2022/202203/20220322/Omada_SDN_Controller_v5.1.7_Linux_x64.tar.gz"
+    ;;
+  5.3)
+    OMADA_URL="https://static.tp-link.com/upload/software/2022/202205/20220507/Omada_SDN_Controller_v5.3.1_Linux_x64.tar.gz"
+    ;;
+  5.4)
+    OMADA_URL="https://static.tp-link.com/upload/software/2022/202207/20220729/Omada_SDN_Controller_v5.4.6_Linux_x64.tar.gz"
+    ;;
+  5.5)
+    OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
+    ;;
+  *)
+    echo "ERROR: INSTALL_VER (${INSTALL_VER}) is not a supported major.minor version; valid versions:"
+    echo "  4.1, 4.2, 4.3, 4.4, 5.0, 5.1, 5.3, 5.4, 5.5"
+    exit 1
+    ;;
+esac
 
 # extract required data from the OMADA_URL
 OMADA_TAR="$(echo "${OMADA_URL}" | awk -F '/' '{print $NF}')"
@@ -33,10 +61,60 @@ PKGS=(
   net-tools
   tzdata
   wget
-  mongodb-server-core
-  openjdk-17-jre-headless
 )
 
+# add specific package for mongodb
+case "${ARCH}" in
+  amd64|arm64|"")
+    PKGS+=( mongodb-server-core )
+    ;;
+  armv7l)
+    PKGS+=( mongodb )
+    ;;
+  *)
+    die "${ARCH}: unsupported ARCH"
+    ;;
+esac
+
+# add specific package for openjdk
+case "${ARCH}" in
+  amd64|arm64|"")
+    # use openjdk-17 for v5.4 and above; all others us openjdk-8
+    case "${OMADA_MAJOR_VER}" in
+      5)
+        # pick specific package based on the major.minor version
+        case "${OMADA_MAJOR_MINOR_VER}" in
+          5.0|5.1|5.3)
+            # 5.0 to 5.3 all use openjdk-8
+            PKGS+=( openjdk-8-jre-headless )
+            ;;
+          *)
+            # starting with 5.4, openjdk-17 is supported
+            PKGS+=( openjdk-17-jre-headless )
+            ;;
+        esac
+        ;;
+      *)
+        # all other versions, use openjdk-8
+        PKGS+=( openjdk-8-jre-headless )
+        ;;
+    esac
+    ;;
+  armv7l)
+    # always use openjdk-8 for armv7l
+    PKGS+=( openjdk-8-jre-headless )
+    ;;
+  *)
+    die "${ARCH}: unsupported ARCH"
+    ;;
+esac
+
+# output variables/selections
+echo "ARCH=${ARCH}"
+echo "OMADA_VER=${OMADA_VER}"
+echo "OMADA_TAR=${OMADA_TAR}"
+echo "OMADA_URL=${OMADA_URL}"
+echo "PKGS=( ${PKGS[*]} )"
 
 echo "**** Install Dependencies ****"
 export DEBIAN_FRONTEND=noninteractive
@@ -67,7 +145,7 @@ case "${OMADA_VER}" in
 esac
 
 # make sure tha the install directory exists
-mkdir "/opt/tplink/EAPController" -vp
+mkdir "${OMADA_DIR}" -vp
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
@@ -110,9 +188,16 @@ case "${OMADA_MAJOR_VER}" in
     ;;
 esac
 
-# write installed version to a file
-echo "${OMADA_VER}" > "/opt/tplink/EAPController/IMAGE_OMADA_VER.txt"
-
+# for v5.1 & above, create backup of data/html directory in case it is missing (to be extracted at runtime)
+if [ -d /opt/tplink/EAPController/data/html ]
+then
+  # create backup
+  cd /opt/tplink/EAPController/data
+  tar zcvf ../data-html.tar.gz html
+fi
 
 echo "**** Cleanup ****"
 rm -rf /tmp/* /var/lib/apt/lists/*
+
+# write installed version to a file
+echo "${OMADA_VER}" > "${OMADA_DIR}/IMAGE_OMADA_VER.txt"
