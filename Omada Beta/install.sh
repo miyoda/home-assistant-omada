@@ -15,7 +15,7 @@ die() { echo -e "$@" 2>&1; exit 1; }
 PKGS=(
   gosu
   net-tools
-  openjdk-8-jre-headless
+  openjdk-17-jre-headless
   tzdata
   wget
 )
