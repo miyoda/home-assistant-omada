@@ -102,6 +102,8 @@ ln -s /data "${OMADA_DIR}"
 ln -sf "$(which mongod)" "${OMADA_DIR}/bin/mongod"
 chmod 755 "${OMADA_DIR}"/bin/*
 
+echo "${OMADA_VER}" > "${OMADA_DIR}/IMAGE_OMADA_VER.txt"
+
 echo "**** Setup omada User Account ****"
 groupadd -g 508 omada
 useradd -u 508 -g 508 -d "${OMADA_DIR}" omada
