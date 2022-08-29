@@ -117,8 +117,8 @@ then
   tar zcvf ../data-html.tar.gz html
 fi
 
-echo "**** Cleanup ****"
-rm -rf /tmp/* /var/lib/apt/lists/*
-
 # write installed version to a file
 echo "${OMADA_VER}" > "${OMADA_DIR}/IMAGE_OMADA_VER.txt"
+
+echo "**** Cleanup ****"
+rm -rf /tmp/* /var/lib/apt/lists/*
