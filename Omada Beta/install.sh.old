@@ -8,12 +8,6 @@ set -e
 OMADA_DIR="/opt/tplink/EAPController"
 ARCH="${ARCH:-}"
 INSTALL_VER="${INSTALL_VER:-}"
-
-
-# symlink to home assistant data dir
-ln -s "${OMADA_DIR}" /data
-
-# set URL based on the major.minor version requested to be installed; should be major.minor (e.g. - 4.1)
 OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
 
 
@@ -33,10 +27,60 @@ PKGS=(
   net-tools
   tzdata
   wget
-  mongodb-server-core
-  openjdk-17-jre-headless
 )
 
+# add specific package for mongodb
+case "${ARCH}" in
+  amd64|arm64|"")
+    PKGS+=( mongodb-server-core )
+    ;;
+  armv7l)
+    PKGS+=( mongodb )
+    ;;
+  *)
+    die "${ARCH}: unsupported ARCH"
+    ;;
+esac
+
+# add specific package for openjdk
+case "${ARCH}" in
+  amd64|arm64|"")
+    # use openjdk-17 for v5.4 and above; all others us openjdk-8
+    case "${OMADA_MAJOR_VER}" in
+      5)
+        # pick specific package based on the major.minor version
+        case "${OMADA_MAJOR_MINOR_VER}" in
+          5.0|5.1|5.3)
+            # 5.0 to 5.3 all use openjdk-8
+            PKGS+=( openjdk-8-jre-headless )
+            ;;
+          *)
+            # starting with 5.4, openjdk-17 is supported
+            PKGS+=( openjdk-17-jre-headless )
+            ;;
+        esac
+        ;;
+      *)
+        # all other versions, use openjdk-8
+        PKGS+=( openjdk-8-jre-headless )
+        ;;
+    esac
+    ;;
+  armv7l)
+    # always use openjdk-8 for armv7l
+    PKGS+=( openjdk-8-jre-headless )
+    ;;
+  *)
+    die "${ARCH}: unsupported ARCH"
+    ;;
+esac
+
+# output variables/selections
+echo "ARCH=${ARCH}"
+echo "OMADA_VER=${OMADA_VER}"
+echo "OMADA_TAR=${OMADA_TAR}"
+echo "OMADA_URL=${OMADA_URL}"
+echo "PKGS=( ${PKGS[*]} )"
 
 echo "**** Install Dependencies ****"
 export DEBIAN_FRONTEND=noninteractive
@@ -66,8 +110,10 @@ case "${OMADA_VER}" in
     ;;
 esac
 
+mkdir -p /data/db
+
 # make sure tha the install directory exists
-mkdir "/opt/tplink/EAPController" -vp
+mkdir "${OMADA_DIR}" -vp
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
@@ -76,17 +122,20 @@ case "${OMADA_MAJOR_VER}" in
     if [ "${OMADA_MAJOR_MINOR_VER#*.}" -ge 3 ]
     then
       # 5.3.1 and above moved the keystore directory to be a subdir of data
-      NAMES=( bin data properties lib install.sh uninstall.sh )
+      NAMES=( bin properties lib install.sh uninstall.sh )
     else
       # is less than 5.3
-      NAMES=( bin data properties keystore lib install.sh uninstall.sh )
+      NAMES=( bin properties keystore lib install.sh uninstall.sh )
     fi
     ;;
   *)
     # isn't v5.x
-    NAMES=( bin data properties keystore lib webapps install.sh uninstall.sh )
+    NAMES=( bin properties keystore lib webapps install.sh uninstall.sh )
     ;;
 esac
+
+# homeassistnat data directory
+ln -s /data "${OMADA_DIR}"
 
 # copy over the files to the destination
 for NAME in "${NAMES[@]}"
@@ -110,9 +159,9 @@ case "${OMADA_MAJOR_VER}" in
     ;;
 esac
 
-# write installed version to a file
-echo "${OMADA_VER}" > "/opt/tplink/EAPController/IMAGE_OMADA_VER.txt"
-
 
 echo "**** Cleanup ****"
 rm -rf /tmp/* /var/lib/apt/lists/*
+
+# write installed version to a file
+echo "${OMADA_VER}" > "${OMADA_DIR}/IMAGE_OMADA_VER.txt"
