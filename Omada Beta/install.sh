@@ -107,7 +107,7 @@ case "${OMADA_MAJOR_VER}" in
 esac
 
 # write installed version to a file
-echo "${OMADA_VER}" > "${OMADA_DIR}/IMAGE_OMADA_VER.txt"
+echo "${OMADA_VER}" > "/opt/tplink/EAPController/IMAGE_OMADA_VER.txt"
 
 # symlink to home assistant data dir
 ln -s "${OMADA_DIR}" /data 
