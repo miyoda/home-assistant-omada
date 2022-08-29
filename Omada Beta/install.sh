@@ -106,19 +106,11 @@ case "${OMADA_MAJOR_VER}" in
     ;;
 esac
 
-# symlink to home assistant data dir
-ln -s "${OMADA_DIR}" /data 
-
-# for v5.1 & above, create backup of data/html directory in case it is missing (to be extracted at runtime)
-if [ -d /opt/tplink/EAPController/data/html ]
-then
-  # create backup
-  cd /opt/tplink/EAPController/data
-  tar zcvf ../data-html.tar.gz html
-fi
-
 # write installed version to a file
 echo "${OMADA_VER}" > "${OMADA_DIR}/IMAGE_OMADA_VER.txt"
+
+# symlink to home assistant data dir
+ln -s "${OMADA_DIR}" /data 
 
 echo "**** Cleanup ****"
 rm -rf /tmp/* /var/lib/apt/lists/*
