@@ -9,8 +9,6 @@ OMADA_DIR="/opt/tplink/EAPController"
 ARCH="${ARCH:-}"
 INSTALL_VER="${INSTALL_VER:-}"
 
-# symlink to home assistant data dir
-ln -s /data "${OMADA_DIR}"
 
 # set URL based on the major.minor version requested to be installed; should be major.minor (e.g. - 4.1)
 OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
