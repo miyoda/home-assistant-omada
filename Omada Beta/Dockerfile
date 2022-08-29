@@ -1,4 +1,4 @@
-ARG BASE=mbentley/ubuntu:20.04
+ARG BASE=mbentley/ubuntu:18.04
 FROM ${BASE}
 
 LABEL maintainer="Matt Bentley <mbentley@mbentley.net>"
