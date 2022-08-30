@@ -13,10 +13,9 @@ ARG ARCH=arm64
 ARG INSTALL_VER="5.5"
 
 RUN chmod +x install.sh
-RUN chmod +x log4j_patch.sh
 
 # install omada controller (instructions taken from install.sh) & patch log4j, if applicable
-RUN /install.sh && /log4j_patch.sh && rm /install.sh /log4j_patch.sh
+RUN /install.sh && rm /install.sh
 
 COPY entrypoint-5.x.sh /entrypoint.sh
 RUN chmod +x entrypoint.sh

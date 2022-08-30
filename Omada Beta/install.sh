@@ -78,6 +78,7 @@ mkdir -p /data/db
 mkdir "${OMADA_DIR}" -vp
 mkdir "${OMADA_DIR}/logs"
 mkdir "${OMADA_DIR}/work"
+mkdir "${OMADA_DIR}/keystore"
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
