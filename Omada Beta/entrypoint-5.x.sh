@@ -138,7 +138,6 @@ if [ ! -d "${OMADA_DIR}/data/pdf" ]
 then
   # missing directory; extract from original
   echo "INFO: Report PDF directory missing; creating '${OMADA_DIR}/data/pdf'"
-  mkdir "${OMADA_DIR}/data"
   mkdir "${OMADA_DIR}/data/pdf"
   chown -R omada:omada "${OMADA_DIR}/data/pdf"
 fi
