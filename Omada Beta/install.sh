@@ -83,6 +83,12 @@ mkdir "${OMADA_DIR}" -vp
 mkdir "${OMADA_DIR}/logs"
 mkdir "${OMADA_DIR}/work"
 mkdir "${OMADA_DIR}/data"
+mkdir "${OMADA_DIR}/data/pdf"
+mkdir "${OMADA_DIR}/data/dbd"
+
+#create default files
+
+touch "${OMADA_DIR}/IMAGE_OMADA_VER.txt"
 
 #ln -s /data /opt/tplink/EAPController
 
