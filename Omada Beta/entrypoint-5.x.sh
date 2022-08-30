@@ -16,7 +16,7 @@ SSL_CERT_NAME="${SSL_CERT_NAME:-tls.crt}"
 SSL_KEY_NAME="${SSL_KEY_NAME:-tls.key}"
 TLS_1_11_ENABLED="${TLS_1_11_ENABLED:-false}"
 # default /opt/tplink/EAPController
-OMADA_DIR="/data"
+OMADA_DIR="/opt/tplink/EAPController"
 PUID="${PUID:-508}"
 PGID="${PGID:-508}"
 
