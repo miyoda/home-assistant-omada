@@ -248,15 +248,6 @@ then
   echo -e "############################\n"
 fi
 
-# compare version from the image to the version stored in the persistent data (last ran version)
-if [ -f "${OMADA_DIR}/IMAGE_OMADA_VER.txt" ]
-then
-  # file found; read the version that is in the image
-  IMAGE_OMADA_VER="$(cat ${OMADA_DIR}/IMAGE_OMADA_VER.txt)"
-else
-  echo "ERROR: Missing image version file (${OMADA_DIR}/IMAGE_OMADA_VER.txt); this should never happen!"
-fi
-
 # load LAST_RAN_OMADA_VER, if file present
 if [ -f "${OMADA_DIR}/data/LAST_RAN_OMADA_VER.txt" ]
 then
@@ -267,17 +258,6 @@ else
   LAST_RAN_OMADA_VER="0.0.0"
 fi
 
-# use sort to check which version is newer; should sort the newest version to the top
-if [ "$(printf '%s\n' "${IMAGE_OMADA_VER}" "${LAST_RAN_OMADA_VER}" | sort -rV | head -n1)" != "${IMAGE_OMADA_VER}" ]
-then
-  # version in the image is didn't match newest image version; this means we are trying to start and older version
-  echo "ERROR: The version from the image (${IMAGE_OMADA_VER}) is older than the last version executed (${LAST_RAN_OMADA_VER})!  Refusing to start to prevent data loss!"
-  echo "  To bypass this check, remove ${OMADA_DIR}/data/LAST_RAN_OMADA_VER.txt only if you REALLY know what you're doing!"
-  exit 1
-else
-  echo "INFO: Version check passed; image version (${IMAGE_OMADA_VER}) >= the last version ran (${LAST_RAN_OMADA_VER}); writing image version to last ran file..."
-  echo "${IMAGE_OMADA_VER}" > "${OMADA_DIR}/data/LAST_RAN_OMADA_VER.txt"
-fi
 
 echo "INFO: Starting Omada Controller as user omada"
 
