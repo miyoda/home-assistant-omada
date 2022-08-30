@@ -78,7 +78,7 @@ mkdir -p /data/db
 mkdir "${OMADA_DIR}" -vp
 mkdir "${OMADA_DIR}/logs"
 mkdir "${OMADA_DIR}/work"
-mkdir "${OMADA_DIR}/keystore"
+mkdir "${OMADA_DIR}/data"
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
@@ -97,7 +97,7 @@ do
 done
 
 # symlink to home assistant data dir
-ln -s /data "${OMADA_DIR}"
+#ln -s /data "${OMADA_DIR}"
 
 # symlink for mongod
 ln -sf "$(which mongod)" "${OMADA_DIR}/bin/mongod"

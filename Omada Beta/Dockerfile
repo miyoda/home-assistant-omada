@@ -11,7 +11,8 @@ ARG ARCH=arm64
 
 # install version (major.minor only); OMADA_URL set in install.sh
 ARG INSTALL_VER="5.5"
-
+RUN mkdir /opt/tplink/
+RUN ln -s /data /opt/tplink/EAPController
 RUN chmod +x install.sh
 
 # install omada controller (instructions taken from install.sh) & patch log4j, if applicable
