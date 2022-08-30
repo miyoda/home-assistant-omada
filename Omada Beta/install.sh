@@ -2,7 +2,7 @@
 
 set -e
 
-OMADA_DIR="/data"
+OMADA_DIR="/opt/tplink/EAPController"
 ARCH="${ARCH:-}"
 OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
 OMADA_MAJOR_VER="$(echo "${OMADA_VER}" | awk -F '.' '{print $1}')"
@@ -78,7 +78,6 @@ mkdir -p /data/db
 mkdir "${OMADA_DIR}" -vp
 mkdir "${OMADA_DIR}/logs"
 mkdir "${OMADA_DIR}/work"
-mkdir "${OMADA_DIR}/data"
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
@@ -89,6 +88,8 @@ case "${OMADA_MAJOR_VER}" in
     NAMES=( bin properties keystore lib webapps install.sh uninstall.sh )
     ;;
 esac
+
+ln -s /data /opt/tplink/EAPController
 
 # copy over the files to the destination
 for NAME in "${NAMES[@]}"
@@ -109,6 +110,7 @@ echo "**** Setup omada User Account ****"
 groupadd -g 508 omada
 useradd -u 508 -g 508 -d "${OMADA_DIR}" omada
 chown -R omada:omada "${OMADA_DIR}/data" "${OMADA_DIR}/logs" "${OMADA_DIR}/work"
+
 
 echo "**** Cleanup ****"
 rm -rf /tmp/* /var/lib/apt/lists/*
