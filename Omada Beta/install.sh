@@ -2,7 +2,7 @@
 
 set -e
 
-OMADA_DIR="/opt/tplink/EAPController"
+OMADA_DIR="/data"
 ARCH="${ARCH:-}"
 OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
 OMADA_MAJOR_VER="$(echo "${OMADA_VER}" | awk -F '.' '{print $1}')"
