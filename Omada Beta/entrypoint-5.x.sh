@@ -255,7 +255,6 @@ then
   IMAGE_OMADA_VER="$(cat ${OMADA_DIR}/IMAGE_OMADA_VER.txt)"
 else
   echo "ERROR: Missing image version file (${OMADA_DIR}/IMAGE_OMADA_VER.txt); this should never happen!"
-  exit 1
 fi
 
 # load LAST_RAN_OMADA_VER, if file present
