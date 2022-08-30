@@ -2,7 +2,7 @@
 
 set -e
 
-OMADA_DIR="/opt/tplink/EAPController"
+OMADA_DIR="/data"
 ARCH="${ARCH:-}"
 OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
 OMADA_MAJOR_VER="$(echo "${OMADA_VER}" | awk -F '.' '{print $1}')"
@@ -82,8 +82,9 @@ mkdir -p /data/db
 mkdir "${OMADA_DIR}" -vp
 mkdir "${OMADA_DIR}/logs"
 mkdir "${OMADA_DIR}/work"
+mkdir "${OMADA_DIR}/data"
 
-ln -s /data /opt/tplink/EAPController
+#ln -s /data /opt/tplink/EAPController
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in

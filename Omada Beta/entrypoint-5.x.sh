@@ -15,6 +15,8 @@ SHOW_MONGODB_LOGS="${SHOW_MONGODB_LOGS:-false}"
 SSL_CERT_NAME="${SSL_CERT_NAME:-tls.crt}"
 SSL_KEY_NAME="${SSL_KEY_NAME:-tls.key}"
 TLS_1_11_ENABLED="${TLS_1_11_ENABLED:-false}"
+# default /opt/tplink/EAPController
+OMADA_DIR="/data"
 PUID="${PUID:-508}"
 PGID="${PGID:-508}"
 
@@ -68,11 +70,11 @@ else
     # user ID exists but has a different user name
     EXISTING_USER="$(grep ":${PUID}:" /etc/passwd | awk -F ':' '{print $1}')"
     echo "INFO: User (omada) already exists with a different name; renaming '${EXISTING_USER}' to 'omada'"
-    usermod -g "${PGID}" -d /opt/tplink/EAPController/data -l omada -s /bin/sh -c "" "${EXISTING_USER}"
+    usermod -g "${PGID}" -d "${OMADA_DIR}/data" -l omada -s /bin/sh -c "" "${EXISTING_USER}"
   else
     # create the user
     echo "INFO: User (omada) doesn't exist; creating"
-    useradd -u "${PUID}" -g "${PGID}" -d /opt/tplink/EAPController/data -s /bin/sh -c "" omada
+    useradd -u "${PUID}" -g "${PGID}" -d "${OMADA_DIR}/data" -s /bin/sh -c "" omada
   fi
 fi
 
@@ -95,7 +97,7 @@ set_port_property() {
   fi
 
   echo "INFO: Setting '${1}' to ${3} in omada.properties"
-  sed -i "s/^${1}=${2}$/${1}=${3}/g" /opt/tplink/EAPController/properties/omada.properties
+  sed -i "s/^${1}=${2}$/${1}=${3}/g" "${OMADA_DIR}/properties/omada.properties"
 }
 
 # replace MANAGE_HTTP_PORT if not the default
@@ -123,34 +125,34 @@ then
 fi
 
 # make sure that the html directory exists
-if [ ! -d "/opt/tplink/EAPController/data/html" ] && [ -f "/opt/tplink/EAPController/data-html.tar.gz" ]
+if [ ! -d "${OMADA_DIR}/data/html" ] && [ -f "${OMADA_DIR}/data-html.tar.gz" ]
 then
   # missing directory; extract from original
-  echo "INFO: Report HTML directory missing; extracting backup to '/opt/tplink/EAPController/data/html'"
-  tar zxvf /opt/tplink/EAPController/data-html.tar.gz -C /opt/tplink/EAPController/data
-  chown -R omada:omada /opt/tplink/EAPController/data/html
+  echo "INFO: Report HTML directory missing; extracting backup to '${OMADA_DIR}/data/html'"
+  tar zxvf "${OMADA_DIR}/data-html.tar.gz" -C "${OMADA_DIR}/data"
+  chown -R omada:omada "${OMADA_DIR}/data/html"
 fi
 
 # make sure that the pdf directory exists
-if [ ! -d "/opt/tplink/EAPController/data/pdf" ]
+if [ ! -d "${OMADA_DIR}/data/pdf" ]
 then
   # missing directory; extract from original
-  echo "INFO: Report PDF directory missing; creating '/opt/tplink/EAPController/data/pdf'"
-  mkdir /opt/tplink/EAPController/data/pdf
-  chown -R omada:omada /opt/tplink/EAPController/data/pdf
+  echo "INFO: Report PDF directory missing; creating '${OMADA_DIR}/data/pdf'"
+  mkdir "${OMADA_DIR}/data/pdf"
+  chown -R omada:omada "${OMADA_DIR}/data/pdf"
 fi
 
 # make sure permissions are set appropriately on each directory
 for DIR in data logs
 do
-  OWNER="$(stat -c '%u' /opt/tplink/EAPController/${DIR})"
-  GROUP="$(stat -c '%g' /opt/tplink/EAPController/${DIR})"
+  OWNER="$(stat -c '%u' ${OMADA_DIR}/${DIR})"
+  GROUP="$(stat -c '%g' ${OMADA_DIR}/${DIR})"
 
   if [ "${OWNER}" != "${PUID}" ] || [ "${GROUP}" != "${PGID}" ]
   then
     # notify user that uid:gid are not correct and fix them
-    echo "WARN: Ownership not set correctly on '/opt/tplink/EAPController/${DIR}'; setting correct ownership (omada:omada)"
-    chown -R omada:omada "/opt/tplink/EAPController/${DIR}"
+    echo "WARN: Ownership not set correctly on '${OMADA_DIR}/${DIR}'; setting correct ownership (omada:omada)"
+    chown -R omada:omada "${OMADA_DIR}/${DIR}"
   fi
 done
 
@@ -163,11 +165,11 @@ then
 fi
 
 # check to see if there is a db directory; create it if it is missing
-if [ ! -d "/opt/tplink/EAPController/data/db" ]
+if [ ! -d "${OMADA_DIR}/data/db" ]
 then
-  echo "INFO: Database directory missing; creating '/opt/tplink/EAPController/data/db'"
-  mkdir /opt/tplink/EAPController/data/db
-  chown omada:omada /opt/tplink/EAPController/data/db
+  echo "INFO: Database directory missing; creating '${OMADA_DIR}/data/db'"
+  mkdir "${OMADA_DIR}/data/db"
+  chown omada:omada "${OMADA_DIR}/data/db"
   echo "done"
 fi
 
@@ -175,13 +177,13 @@ fi
 if [ -f "/cert/${SSL_KEY_NAME}" ] && [ -f "/cert/${SSL_CERT_NAME}" ]
 then
   # see where the keystore directory is; check for old location first
-  if [ -d /opt/tplink/EAPController/keystore ]
+  if [ -d "${OMADA_DIR}/keystore" ]
   then
     # keystore in the parent folder before 5.3.1
-    KEYSTORE_DIR="/opt/tplink/EAPController/keystore"
+    KEYSTORE_DIR="${OMADA_DIR}/keystore"
   else
     # keystore directory moved to the data directory in 5.3.1
-    KEYSTORE_DIR="/opt/tplink/EAPController/data/keystore"
+    KEYSTORE_DIR="${OMADA_DIR}/data/keystore"
 
     # check to see if the KEYSTORE_DIR exists (it won't on upgrade)
     if [ ! -d "${KEYSTORE_DIR}" ]
@@ -230,9 +232,9 @@ then
 fi
 
 # see if any of these files exist; if so, do not start as they are from older versions
-if [ -f /opt/tplink/EAPController/data/db/tpeap.0 ] || [ -f /opt/tplink/EAPController/data/db/tpeap.1 ] || [ -f /opt/tplink/EAPController/data/db/tpeap.ns ]
+if [ -f "${OMADA_DIR}/data/db/tpeap.0" ] || [ -f "${OMADA_DIR}/data/db/tpeap.1" ] || [ -f "${OMADA_DIR}/data/db/tpeap.ns" ]
 then
-  echo "ERROR: The data volume mounted to /opt/tplink/EAPController/data appears to have data from a previous version!"
+  echo "ERROR: The data volume mounted to ${OMADA_DIR}/data appears to have data from a previous version!"
   echo "  Follow the upgrade instructions at https://github.com/mbentley/docker-omada-controller#upgrading-to-41"
   exit 1
 fi
@@ -247,20 +249,20 @@ then
 fi
 
 # compare version from the image to the version stored in the persistent data (last ran version)
-if [ -f "/opt/tplink/EAPController/IMAGE_OMADA_VER.txt" ]
+if [ -f "${OMADA_DIR}/IMAGE_OMADA_VER.txt" ]
 then
   # file found; read the version that is in the image
-  IMAGE_OMADA_VER="$(cat /opt/tplink/EAPController/IMAGE_OMADA_VER.txt)"
+  IMAGE_OMADA_VER="$(cat ${OMADA_DIR}/IMAGE_OMADA_VER.txt)"
 else
-  echo "ERROR: Missing image version file (/opt/tplink/EAPController/IMAGE_OMADA_VER.txt); this should never happen!"
+  echo "ERROR: Missing image version file (${OMADA_DIR}/IMAGE_OMADA_VER.txt); this should never happen!"
   exit 1
 fi
 
 # load LAST_RAN_OMADA_VER, if file present
-if [ -f "/opt/tplink/EAPController/data/LAST_RAN_OMADA_VER.txt" ]
+if [ -f "${OMADA_DIR}/data/LAST_RAN_OMADA_VER.txt" ]
 then
   # file found; read the version that was last recorded
-  LAST_RAN_OMADA_VER="$(cat /opt/tplink/EAPController/data/LAST_RAN_OMADA_VER.txt)"
+  LAST_RAN_OMADA_VER="$(cat ${OMADA_DIR}/data/LAST_RAN_OMADA_VER.txt)"
 else
   # no file found; set version to 0.0.0 as we don't know the last version
   LAST_RAN_OMADA_VER="0.0.0"
@@ -271,11 +273,11 @@ if [ "$(printf '%s\n' "${IMAGE_OMADA_VER}" "${LAST_RAN_OMADA_VER}" | sort -rV | 
 then
   # version in the image is didn't match newest image version; this means we are trying to start and older version
   echo "ERROR: The version from the image (${IMAGE_OMADA_VER}) is older than the last version executed (${LAST_RAN_OMADA_VER})!  Refusing to start to prevent data loss!"
-  echo "  To bypass this check, remove /opt/tplink/EAPController/data/LAST_RAN_OMADA_VER.txt only if you REALLY know what you're doing!"
+  echo "  To bypass this check, remove ${OMADA_DIR}/data/LAST_RAN_OMADA_VER.txt only if you REALLY know what you're doing!"
   exit 1
 else
   echo "INFO: Version check passed; image version (${IMAGE_OMADA_VER}) >= the last version ran (${LAST_RAN_OMADA_VER}); writing image version to last ran file..."
-  echo "${IMAGE_OMADA_VER}" > /opt/tplink/EAPController/data/LAST_RAN_OMADA_VER.txt
+  echo "${IMAGE_OMADA_VER}" > "${OMADA_DIR}/data/LAST_RAN_OMADA_VER.txt"
 fi
 
 echo "INFO: Starting Omada Controller as user omada"
@@ -283,13 +285,13 @@ echo "INFO: Starting Omada Controller as user omada"
 # tail the omada logs if set to true
 if [ "${SHOW_SERVER_LOGS}" = "true" ]
 then
-  gosu omada tail -F -n 0 /opt/tplink/EAPController/logs/server.log &
+  gosu omada tail -F -n 0 "${OMADA_DIR}/logs/server.log" &
 fi
 
 # tail the mongodb logs if set to true
 if [ "${SHOW_MONGODB_LOGS}" = "true" ]
 then
-  gosu omada tail -F -n 0 /opt/tplink/EAPController/logs/mongod.log &
+  gosu omada tail -F -n 0 "${OMADA_DIR}/logs/mongod.log" &
 fi
 
 # run the actual command as the omada user
