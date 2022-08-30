@@ -8,6 +8,8 @@ OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada
 OMADA_MAJOR_VER="$(echo "${OMADA_VER}" | awk -F '.' '{print $1}')"
 
 
+
+
 # extract required data from the OMADA_URL
 OMADA_TAR="$(echo "${OMADA_URL}" | awk -F '/' '{print $NF}')"
 OMADA_VER="$(echo "${OMADA_TAR}" | awk -F '_v' '{print $2}' | awk -F '_' '{print $1}')"
@@ -55,6 +57,7 @@ wget -nv "${OMADA_URL}"
 
 echo "**** Extract and Install Omada Controller ****"
 
+
 # in the 4.4.3, 4.4.6, and 4.4.8 builds, they removed the directory. this case statement will handle variations in the build
 case "${OMADA_VER}" in
   4.4.3|4.4.6|4.4.8)
@@ -72,12 +75,15 @@ case "${OMADA_VER}" in
     ;;
 esac
 
+
 mkdir -p /data/db
 
 # make sure tha the install directory exists
 mkdir "${OMADA_DIR}" -vp
 mkdir "${OMADA_DIR}/logs"
 mkdir "${OMADA_DIR}/work"
+
+ln -s /data /opt/tplink/EAPController
 
 # starting with 5.0.x, the installation has no webapps directory; these values are pulled from the install.sh
 case "${OMADA_MAJOR_VER}" in
@@ -89,7 +95,6 @@ case "${OMADA_MAJOR_VER}" in
     ;;
 esac
 
-ln -s /data /opt/tplink/EAPController
 
 # copy over the files to the destination
 for NAME in "${NAMES[@]}"
