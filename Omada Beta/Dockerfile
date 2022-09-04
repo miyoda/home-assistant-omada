@@ -14,8 +14,7 @@ ARG INSTALL_VER="5.5"
 RUN chmod +x install.sh
 
 # install omada controller (instructions taken from install.sh) & patch log4j, if applicable
-RUN /install.sh && rm /install.sh
-
+RUN /install.sh && rm /install.sh 
 COPY entrypoint-5.x.sh /entrypoint.sh
 RUN chmod +x entrypoint.sh
 
