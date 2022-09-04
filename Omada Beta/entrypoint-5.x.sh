@@ -203,7 +203,6 @@ openssl pkcs12 -export \
 # set ownership/permission on keystore
 chown omada:omada "${KEYSTORE_DIR}/eap.keystore"
 chmod 400 "${KEYSTORE_DIR}/eap.keystore"
-fi
 
 # re-enable disabled TLS versions 1.0 & 1.1
 if [ "${TLS_1_11_ENABLED}" = "true" ]
