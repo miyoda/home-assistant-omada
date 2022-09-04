@@ -179,13 +179,12 @@ if [ -f "/cert/${SSL_KEY_NAME}" ] && [ -f "/cert/${SSL_CERT_NAME}" ]
   KEYSTORE_DIR="${OMADA_DIR}/data/keystore"
 
   # check to see if the KEYSTORE_DIR exists (it won't on upgrade)
-  if [ ! -d "${KEYSTORE_DIR}" ]
-  then
-    echo "INFO: Creating keystore directory (${KEYSTORE_DIR})"
-    mkdir "${KEYSTORE_DIR}"
-    echo "INFO: Setting permissions on ${KEYSTORE_DIR}"
-    chown omada:omada "${KEYSTORE_DIR}"
-  fi
+if [ ! -d "${KEYSTORE_DIR}" ]
+then
+  echo "INFO: Creating keystore directory (${KEYSTORE_DIR})"
+  mkdir "${KEYSTORE_DIR}"
+  echo "INFO: Setting permissions on ${KEYSTORE_DIR}"
+  chown omada:omada "${KEYSTORE_DIR}"
 fi
 
 echo "INFO: Importing cert from /cert/tls.[key|crt]"
