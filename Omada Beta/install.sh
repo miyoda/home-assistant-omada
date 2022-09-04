@@ -6,8 +6,16 @@ OMADA_DIR="/opt/tplink/EAPController"
 ARCH="${ARCH:-}"
 OMADA_VER="${OMADA_VER:-}"
 OMADA_TAR="${OMADA_TAR:-}"
-OMADA_URL="${OMADA_URL:-}"
+OMADA_URL="https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz"
 OMADA_MAJOR_VER="$(echo "${OMADA_VER}" | awk -F '.' '{print $1}')"
+
+
+# extract required data from the OMADA_URL
+OMADA_TAR="$(echo "${OMADA_URL}" | awk -F '/' '{print $NF}')"
+OMADA_VER="$(echo "${OMADA_TAR}" | awk -F '_v' '{print $2}' | awk -F '_' '{print $1}')"
+OMADA_MAJOR_VER="${OMADA_VER%.*.*}"
+OMADA_MAJOR_MINOR_VER="${OMADA_VER%.*}"
+
 
 die() { echo -e "$@" 2>&1; exit 1; }
 
@@ -47,8 +55,6 @@ cd /tmp
 wget -nv "${OMADA_URL}"
 
 echo "**** Extract and Install Omada Controller ****"
-
-# in the 4.4.3, 4.4.6, and 4.4.8 builds, they removed the directory. this case statement will handle variations in the build
 case "${OMADA_VER}" in
   4.4.3|4.4.6|4.4.8)
     echo "version ${OMADA_VER}"
@@ -64,6 +70,7 @@ case "${OMADA_VER}" in
     cd Omada_SDN_Controller_*
     ;;
 esac
+
 
 # make sure tha the install directory exists
 mkdir "${OMADA_DIR}" -vp
@@ -90,6 +97,7 @@ echo "${OMADA_VER}" > "${OMADA_DIR}/IMAGE_OMADA_VER.txt"
 echo "**** Setup omada User Account ****"
 groupadd -g 508 omada
 useradd -u 508 -g 508 -d "${OMADA_DIR}" omada
+mkdir "${OMADA_DIR}/logs" "${OMADA_DIR}/work"
 chown -R omada:omada "${OMADA_DIR}/data" "${OMADA_DIR}/logs" "${OMADA_DIR}/work"
 
 
