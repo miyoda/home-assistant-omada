@@ -175,44 +175,47 @@ fi
 
 # Import a cert from a possibly mounted secret or file at /cert
 if [ -f "/cert/${SSL_KEY_NAME}" ] && [ -f "/cert/${SSL_CERT_NAME}" ]
-  # keystore directory moved to the data directory in and after 5.3.1
-  KEYSTORE_DIR="${OMADA_DIR}/data/keystore"
-
-  # check to see if the KEYSTORE_DIR exists (it won't on upgrade)
-if [ ! -d "${KEYSTORE_DIR}" ]
 then
-  echo "INFO: Creating keystore directory (${KEYSTORE_DIR})"
-  mkdir "${KEYSTORE_DIR}"
-  echo "INFO: Setting permissions on ${KEYSTORE_DIR}"
-  chown omada:omada "${KEYSTORE_DIR}"
+  # see where the keystore directory is; check for old location first
+  if [ -d "${OMADA_DIR}/keystore" ]
+  then
+    # keystore directory moved to the data directory in 5.3.1
+    KEYSTORE_DIR="${OMADA_DIR}/data/keystore"
+
+    # check to see if the KEYSTORE_DIR exists (it won't on upgrade)
+    if [ ! -d "${KEYSTORE_DIR}" ]
+    then
+      echo "INFO: Creating keystore directory (${KEYSTORE_DIR})"
+      mkdir "${KEYSTORE_DIR}"
+      echo "INFO: Setting permissions on ${KEYSTORE_DIR}"
+      chown omada:omada "${KEYSTORE_DIR}"
+    fi
+  fi
+
+  echo "INFO: Importing cert from /cert/tls.[key|crt]"
+  # delete the existing keystore
+  rm -f "${KEYSTORE_DIR}/eap.keystore"
+
+  # example certbot usage: ./certbot-auto certonly --standalone --preferred-challenges http -d mydomain.net
+  openssl pkcs12 -export \
+    -inkey "/cert/${SSL_KEY_NAME}" \
+    -in "/cert/${SSL_CERT_NAME}" \
+    -certfile "/cert/${SSL_CERT_NAME}" \
+    -name eap \
+    -out "${KEYSTORE_DIR}/eap.keystore" \
+    -passout pass:tplink
+
+  # set ownership/permission on keystore
+  chown omada:omada "${KEYSTORE_DIR}/eap.keystore"
+  chmod 400 "${KEYSTORE_DIR}/eap.keystore"
 fi
-
-echo "INFO: Importing cert from /cert/tls.[key|crt]"
-# delete the existing keystore
-rm -f "${KEYSTORE_DIR}/eap.keystore"
-
-# example certbot usage: ./certbot-auto certonly --standalone --preferred-challenges http -d mydomain.net
-openssl pkcs12 -export \
-  -inkey "/cert/${SSL_KEY_NAME}" \
-  -in "/cert/${SSL_CERT_NAME}" \
-  -certfile "/cert/${SSL_CERT_NAME}" \
-  -name eap \
-  -out "${KEYSTORE_DIR}/eap.keystore" \
-  -passout pass:tplink
-
-# set ownership/permission on keystore
-chown omada:omada "${KEYSTORE_DIR}/eap.keystore"
-chmod 400 "${KEYSTORE_DIR}/eap.keystore"
 
 # re-enable disabled TLS versions 1.0 & 1.1
 if [ "${TLS_1_11_ENABLED}" = "true" ]
 then
-  echo "INFO: Re-enabling TLS 1.0 & 1.1"
-    # openjdk17
-    sed -i 's#^jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1,#jdk.tls.disabledAlgorithms=SSLv3,#' /etc/java-17-openjdk/security/java.security
-  else
-    # not running openjdk17
+    # not running openjdk8 or openjdk17
     echo "WARN: Unable to re-enable TLS 1.0 & 1.1; unable to detect openjdk version"
+  fi
 fi
 
 # see if any of these files exist; if so, do not start as they are from older versions
