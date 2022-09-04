@@ -55,21 +55,10 @@ cd /tmp
 wget -nv "${OMADA_URL}"
 
 echo "**** Extract and Install Omada Controller ****"
-case "${OMADA_VER}" in
-  4.4.3|4.4.6|4.4.8)
-    echo "version ${OMADA_VER}"
-    mkdir "Omada_SDN_Controller_${OMADA_VER}"
-    cd "Omada_SDN_Controller_${OMADA_VER}"
-    tar zxvf "../${OMADA_TAR}"
-    rm -f "../${OMADA_TAR}"
-    ;;
-  *)
-    echo "not version 4.4.3/4.4.6/4.4.8"
-    tar zxvf "${OMADA_TAR}"
-    rm -f "${OMADA_TAR}"
-    cd Omada_SDN_Controller_*
-    ;;
-esac
+tar zxvf "${OMADA_TAR}"
+rm -f "${OMADA_TAR}"
+cd Omada_SDN_Controller_*
+
 
 
 # make sure tha the install directory exists

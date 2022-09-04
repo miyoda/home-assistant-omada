@@ -4,7 +4,7 @@ FROM ${BASE}
 LABEL maintainer="Matt Bentley <mbentley@mbentley.net>"
 LABEL org.opencontainers.image.source="https://github.com/mbentley/docker-omada-controller"
 
-COPY healthcheck.sh install.sh log4j_patch.sh /
+COPY healthcheck.sh install.sh /
 
 # valid values: amd64 (default) | arm64 | armv7l
 ARG ARCH=arm64
@@ -15,12 +15,14 @@ RUN chmod +x install.sh
 
 # install omada controller (instructions taken from install.sh) & patch log4j, if applicable
 RUN /install.sh && rm /install.sh 
+
 COPY entrypoint-5.x.sh /entrypoint.sh
+
 RUN chmod +x entrypoint.sh
 
 WORKDIR /opt/tplink/EAPController/lib
 EXPOSE 8088 8043 8843 29810/udp 29811 29812 29813 29814
-HEALTHCHECK --start-period=1m CMD /healthcheck.sh
+HEALTHCHECK --start-period=5m CMD /healthcheck.sh
 VOLUME ["/data","/opt/tplink/EAPController/work","/opt/tplink/EAPController/logs"]
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/bin/java","-server","-Xms128m","-Xmx1024m","-XX:MaxHeapFreeRatio=60","-XX:MinHeapFreeRatio=30","-XX:+HeapDumpOnOutOfMemoryError","-XX:HeapDumpPath=/opt/tplink/EAPController/logs/java_heapdump.hprof","-Djava.awt.headless=true","-cp","/opt/tplink/EAPController/lib/*::/opt/tplink/EAPController/properties:","com.tplink.smb.omada.starter.OmadaLinuxMain"]

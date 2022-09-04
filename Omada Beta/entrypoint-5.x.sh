@@ -175,58 +175,45 @@ fi
 
 # Import a cert from a possibly mounted secret or file at /cert
 if [ -f "/cert/${SSL_KEY_NAME}" ] && [ -f "/cert/${SSL_CERT_NAME}" ]
-then
-  # see where the keystore directory is; check for old location first
-  if [ -d "${OMADA_DIR}/keystore" ]
+  # keystore directory moved to the data directory in and after 5.3.1
+  KEYSTORE_DIR="${OMADA_DIR}/data/keystore"
+
+  # check to see if the KEYSTORE_DIR exists (it won't on upgrade)
+  if [ ! -d "${KEYSTORE_DIR}" ]
   then
-    # keystore in the parent folder before 5.3.1
-    KEYSTORE_DIR="${OMADA_DIR}/keystore"
-  else
-    # keystore directory moved to the data directory in 5.3.1
-    KEYSTORE_DIR="${OMADA_DIR}/data/keystore"
-
-    # check to see if the KEYSTORE_DIR exists (it won't on upgrade)
-    if [ ! -d "${KEYSTORE_DIR}" ]
-    then
-      echo "INFO: Creating keystore directory (${KEYSTORE_DIR})"
-      mkdir "${KEYSTORE_DIR}"
-      echo "INFO: Setting permissions on ${KEYSTORE_DIR}"
-      chown omada:omada "${KEYSTORE_DIR}"
-    fi
+    echo "INFO: Creating keystore directory (${KEYSTORE_DIR})"
+    mkdir "${KEYSTORE_DIR}"
+    echo "INFO: Setting permissions on ${KEYSTORE_DIR}"
+    chown omada:omada "${KEYSTORE_DIR}"
   fi
+fi
 
-  echo "INFO: Importing cert from /cert/tls.[key|crt]"
-  # delete the existing keystore
-  rm -f "${KEYSTORE_DIR}/eap.keystore"
+echo "INFO: Importing cert from /cert/tls.[key|crt]"
+# delete the existing keystore
+rm -f "${KEYSTORE_DIR}/eap.keystore"
 
-  # example certbot usage: ./certbot-auto certonly --standalone --preferred-challenges http -d mydomain.net
-  openssl pkcs12 -export \
-    -inkey "/cert/${SSL_KEY_NAME}" \
-    -in "/cert/${SSL_CERT_NAME}" \
-    -certfile "/cert/${SSL_CERT_NAME}" \
-    -name eap \
-    -out "${KEYSTORE_DIR}/eap.keystore" \
-    -passout pass:tplink
+# example certbot usage: ./certbot-auto certonly --standalone --preferred-challenges http -d mydomain.net
+openssl pkcs12 -export \
+  -inkey "/cert/${SSL_KEY_NAME}" \
+  -in "/cert/${SSL_CERT_NAME}" \
+  -certfile "/cert/${SSL_CERT_NAME}" \
+  -name eap \
+  -out "${KEYSTORE_DIR}/eap.keystore" \
+  -passout pass:tplink
 
-  # set ownership/permission on keystore
-  chown omada:omada "${KEYSTORE_DIR}/eap.keystore"
-  chmod 400 "${KEYSTORE_DIR}/eap.keystore"
+# set ownership/permission on keystore
+chown omada:omada "${KEYSTORE_DIR}/eap.keystore"
+chmod 400 "${KEYSTORE_DIR}/eap.keystore"
 fi
 
 # re-enable disabled TLS versions 1.0 & 1.1
 if [ "${TLS_1_11_ENABLED}" = "true" ]
 then
   echo "INFO: Re-enabling TLS 1.0 & 1.1"
-  if [ -f "/etc/java-8-openjdk/security/java.security" ]
-  then
-    # openjdk8
-    sed -i 's#^jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1,#jdk.tls.disabledAlgorithms=SSLv3,#' /etc/java-8-openjdk/security/java.security
-  elif [ -f "/etc/java-17-openjdk/security/java.security" ]
-  then
     # openjdk17
     sed -i 's#^jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1,#jdk.tls.disabledAlgorithms=SSLv3,#' /etc/java-17-openjdk/security/java.security
   else
-    # not running openjdk8 or openjdk17
+    # not running openjdk17
     echo "WARN: Unable to re-enable TLS 1.0 & 1.1; unable to detect openjdk version"
   fi
 fi
@@ -237,15 +224,6 @@ then
   echo "ERROR: The data volume mounted to ${OMADA_DIR}/data appears to have data from a previous version!"
   echo "  Follow the upgrade instructions at https://github.com/mbentley/docker-omada-controller#upgrading-to-41"
   exit 1
-fi
-
-# check to see if the CMD passed contains the text "com.tplink.omada.start.OmadaLinuxMain" which is the old classpath from 4.x
-if [ "$(echo "${@}" | grep -q "com.tplink.omada.start.OmadaLinuxMain"; echo $?)" = "0" ]
-then
-  echo -e "\n############################"
-  echo "WARNING: CMD from 4.x detected!  It is likely that this container will fail to start properly with a \"Could not find or load main class com.tplink.omada.start.OmadaLinuxMain\" error!"
-  echo "  See the note on old CMDs at https://github.com/mbentley/docker-omada-controller/blob/master/KNOWN_ISSUES.md#upgrade-issues for details on why and how to resolve the issue."
-  echo -e "############################\n"
 fi
 
 # load LAST_RAN_OMADA_VER, if file present
