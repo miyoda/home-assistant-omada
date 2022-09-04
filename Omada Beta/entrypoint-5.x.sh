@@ -213,7 +213,6 @@ then
   else
     # not running openjdk17
     echo "WARN: Unable to re-enable TLS 1.0 & 1.1; unable to detect openjdk version"
-  fi
 fi
 
 # see if any of these files exist; if so, do not start as they are from older versions
