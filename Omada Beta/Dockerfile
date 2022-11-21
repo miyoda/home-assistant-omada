@@ -13,7 +13,7 @@ ARG ARCH=arm64
 ARG INSTALL_VER="5.7"
 RUN chmod +x install.sh
 
-# install omada controller (instructions taken from install.sh) & patch log4j, if applicable
+# install omada controller (instructions taken from install.sh)
 RUN /install.sh && rm /install.sh 
 
 COPY entrypoint-5.x.sh /entrypoint.sh
