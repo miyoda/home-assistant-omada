@@ -11,10 +11,13 @@ ARG ARCH=arm64
 
 COPY install.sh healthcheck.sh /
 
+RUN chmod +x /install.sh
+
 # install omada controller (instructions taken from install.sh); then create a user & group and set the appropriate file system permissions
 RUN /install.sh && rm /install.sh
 
 COPY entrypoint-5.x.sh /entrypoint.sh
+RUN chmod +x entrypoint.sh
 
 WORKDIR /opt/tplink/EAPController/lib
 EXPOSE 8088 8043 8843 27001/udp 27002 29810/udp 29811 29812 29813 29814
