@@ -14,4 +14,3 @@ Special thanks @DraTrav for restructuring and updating the repo.
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
-
