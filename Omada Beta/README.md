@@ -1,9 +1,7 @@
 # Home Assistant Omada Add-On
-This add-on brings the Omada Controller directly into Home Assistant running on a Raspberry Pi.
+This add-on brings the Omada Controller directly into Home Assistant running on a Raspberry Pi. 
 
-The stable is based on jkunczik's build
-While beta is updated to the latest version
+The stable version is based on omada v5.0, while the current beta is at version 5.9. The beta channel has now experimental support for AMD64 systes. Feedback is welcome!
 
-
-# Contribution 
-This add-on is a fork of Matt Bentleys [docker-omada-cotroller](https://github.com/mbentley/docker-omada-controller) and jkunczik [home-assistant-omada](https://github.com/jkunczik/home-assistant-omada) would not have been possible without thier excellent work. Other than in the original docker omada controller, this add-on stores all persistent data in the /data directory, so that it is compatible with Home assistant. My fork updates it to the latest 5.9.9 build and fixes persistant storage related to that
+# About this Add-On
+This add-on is a fork of Matt Bentleys [docker-omada-cotroller](https://github.com/mbentley/docker-omada-controller)  would not have been possible without his excellent work. Other than in the original docker omada controller, this add-on stores all persistent data in the /data directory, so that it is compatible with Home assistant.
