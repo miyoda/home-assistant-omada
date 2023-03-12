@@ -6,8 +6,10 @@ LABEL org.opencontainers.image.source="https://github.com/mbentley/docker-omada-
 
 COPY healthcheck.sh install.sh /
 
-# valid values: amd64 (default) | arm64 | armv7l
-ARG ARCH=amd64
+# Home Assistant adds BUILD_ARCH, and buildx adds TARGETARCH; save the right one as ARCH
+ARG TARGETARCH
+ARG BUILD_ARCH
+ARG ARCH=${TARGETARCH:-${BUILD_ARCH:-}}
 
 # install version (major.minor only); OMADA_URL set in install.sh
 ARG INSTALL_VER="5.9"
