@@ -2,6 +2,7 @@
     "name": "Omada Controller Beta",
     "version": "5.9.2",
     "slug": "omada_controller",
+    "image": "dratrav/home-assistant-omada-beta",
     "description": "TP-Link Omada Controller software v5",
     "webui": "https://[HOST]:[PORT:8043]",
     "startup": "application",
