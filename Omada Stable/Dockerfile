@@ -21,6 +21,6 @@ RUN chmod +x entrypoint.sh
 
 WORKDIR /opt/tplink/EAPController/lib
 EXPOSE 8088 8043 8843 27001/udp 27002 29810/udp 29811 29812 29813 29814
-HEALTHCHECK --start-period=5m CMD /healthcheck.sh
+HEALTHCHECK --start-period=5m CMD ['/bin/sh', '/healthcheck.sh']
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/bin/java","-server","-Xms128m","-Xmx1024m","-XX:MaxHeapFreeRatio=60","-XX:MinHeapFreeRatio=30","-XX:+HeapDumpOnOutOfMemoryError","-XX:HeapDumpPath=/opt/tplink/EAPController/logs/java_heapdump.hprof","-Djava.awt.headless=true","-cp","/opt/tplink/EAPController/lib/*::/opt/tplink/EAPController/properties:","com.tplink.smb.omada.starter.OmadaLinuxMain"]
