@@ -11,9 +11,4 @@
 
 ## 5.9.1 - 2023-03-11
 ### Added
-- Experimental support for AMD64 platforms.
-
-
-## 5.13.1 - 2024-01-15
-### Changed
-- Updated to the upstream version 5.13
+- Support for AMD64 platforms.
