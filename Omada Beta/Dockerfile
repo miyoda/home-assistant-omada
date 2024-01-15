@@ -12,7 +12,8 @@ ARG BUILD_ARCH
 ARG ARCH=${TARGETARCH:-${BUILD_ARCH:-}}
 
 # install version (major.minor only); OMADA_URL set in install.sh
-ARG INSTALL_VER="5.9"
+ARG INSTALL_VER="5.13"
+ARG NO_MONGODB=false
 
 RUN chmod +x /install.sh /healthcheck.sh /log4j_patch.sh
 # install omada controller (instructions taken from install.sh) & patch log4j, if applicable
