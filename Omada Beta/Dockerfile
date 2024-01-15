@@ -21,9 +21,6 @@ RUN /install.sh &&\
   /log4j_patch.sh &&\
   rm /install.sh /log4j_patch.sh
 
-# install omada controller (instructions taken from install.sh)
-RUN /install.sh && rm /install.sh 
-
 COPY entrypoint-5.x.sh /entrypoint.sh
 
 RUN chmod +x entrypoint.sh
